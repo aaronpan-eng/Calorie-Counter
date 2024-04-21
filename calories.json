@@ -1,0 +1,25 @@
+{
+    "04/20/2024": {
+        "entries": [
+            {
+                "name": "banana",
+                "image_file_path": "saved_food_images/04/20/2024/1713649407_9867.jpeg",
+                "weight": "100g",
+                "calories": 155
+            },
+            {
+                "name": "banana",
+                "image_file_path": "saved_food_images/04/20/2024/1713649413_3987.jpeg",
+                "weight": "100g",
+                "calories": 155
+            },
+            {
+                "name": "banana",
+                "image_file_path": "saved_food_images/04/20/2024/1713649431_7850.jpeg",
+                "weight": "100g",
+                "calories": 155
+            }
+        ],
+        "total_calories": 465
+    }
+}
