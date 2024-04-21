@@ -25,9 +25,11 @@ def identified_weight():
 
 
 # This function adds the food name, food image file name, weight, calories, and total calories to the database
-def add_food_to_database(window, name, file_path, weight, calories, current_date):
+def add_food_to_database(
+    window, name, file_path, weight, calories, current_date, day_window
+):
     # get directory where imagesd will be stored for the current date
-    base_directory = os.path.join("saved_food_images", current_date.replace("-", "/"))
+    base_directory = os.path.join("saved_food_images", current_date.replace("/", "-"))
     os.makedirs(base_directory, exist_ok=True)
 
     # generate random file name to save to prevent duplicates
@@ -69,6 +71,53 @@ def add_food_to_database(window, name, file_path, weight, calories, current_date
     # close window
     close_current_window(window)
 
+    # update day window
+    customize_day_window(day_window, current_date)
+
+
+# This function deletes the entry from the database and the folder of saved images
+def delete_food_from_database(del_entry, day_window, current_date):
+    # get calories value of entry to delete
+    del_calorie = del_entry["calories"]
+
+    # delete image file from stored images
+    if os.path.exists(del_entry["image_file_path"]):
+        os.remove(del_entry["image_file_path"])
+
+    # load JSON file
+    json_data_path = os.path.join("calories.json")
+    if os.path.exists(json_data_path):
+        with open(json_data_path, "r") as file:
+            data = json.load(file)
+    else:
+        print("JSON database not found!")
+        return
+
+    with open(json_data_path, "r+") as file:
+        data = json.load(file)
+
+        if current_date in data:
+            old_entries = data[current_date]["entries"]
+            new_entries = [
+                entry
+                for entry in old_entries
+                if entry["image_file_path"] != del_entry["image_file_path"]
+            ]
+
+            # replace old entries with new entries
+            data[current_date]["entries"] = new_entries
+
+            # replace old calories count with new calories count
+            data[current_date]["total_calories"] -= del_calorie
+
+            # write database to JSON after updating
+            file.seek(0)
+            json.dump(data, file, indent=4)
+            file.truncate()
+
+    # update day window
+    customize_day_window(day_window, current_date)
+
 
 # This function closes the current window
 def close_current_window(window):
@@ -88,7 +137,7 @@ def create_food_add_window():
 
 # This function customizes the food add window
 def customize_food_add_window(
-    food_add_window, name, file_path, weight, calories, current_date
+    food_add_window, name, file_path, weight, calories, current_date, day_window
 ):
     # date label
     food_name_label = tk.Label(food_add_window, text=f"Name: {name}")
@@ -116,7 +165,7 @@ def customize_food_add_window(
         food_add_window,
         text="Add Food To Day",
         command=lambda: add_food_to_database(
-            food_add_window, name, file_path, weight, calories, current_date
+            food_add_window, name, file_path, weight, calories, current_date, day_window
         ),
     )
     add_button.grid(row=4, column=0, padx=20, pady=20)
@@ -131,7 +180,7 @@ def customize_food_add_window(
 
 
 # This function asks user for an image and checks it validity
-def add_food(current_date):
+def add_food(current_date, day_window):
     # select image in file dialog
     file_path = filedialog.askopenfilename(
         title="Select an Image", filetypes=[("Image files", "*.png *.jpg *.jpeg")]
@@ -150,7 +199,13 @@ def add_food(current_date):
             # open new window
             food_add_window = create_food_add_window()
             customize_food_add_window(
-                food_add_window, "banana", file_path, "100g", 155, current_date
+                food_add_window,
+                "banana",
+                file_path,
+                "100g",
+                155,
+                current_date,
+                day_window,
             )
 
         else:
@@ -183,6 +238,7 @@ def create_day_window(selected_date):
 # This function customizes the individual day window
 def customize_day_window(day_window, selected_date):
     # get data from json
+    data = []
     json_data_path = os.path.join("calories.json")
     if os.path.exists(json_data_path):
         with open(json_data_path, "r") as file:
@@ -192,7 +248,8 @@ def customize_day_window(day_window, selected_date):
     calories = 0
 
     # if calories for date exist
-    calories = data[selected_date]["total_calories"]
+    if selected_date in data:
+        calories = data[selected_date]["total_calories"]
 
     # date label
     date_label = tk.Label(day_window, text=f"Date: {selected_date}")
@@ -204,7 +261,7 @@ def customize_day_window(day_window, selected_date):
 
     # button to add food
     add_button = tk.Button(
-        day_window, text="Add Food", command=lambda: add_food(selected_date)
+        day_window, text="Add Food", command=lambda: add_food(selected_date, day_window)
     )
     add_button.grid(row=2, column=0, padx=20, pady=20)
 
@@ -247,7 +304,9 @@ def customize_day_window(day_window, selected_date):
         calorie_table_frame.grid_columnconfigure(index, weight=1)
 
     # populate with rows from database
-    entries = data[selected_date]["entries"]
+    entries = []
+    if selected_date in data:
+        entries = data[selected_date]["entries"]
     for row_index, entry in enumerate(entries, start=1):
         # populate image
         image_pil = Image.open(entry.get("image_file_path"))
@@ -266,6 +325,12 @@ def customize_day_window(day_window, selected_date):
         tk.Label(calorie_table_frame, text=entry.get("calories")).grid(
             row=row_index, column=3
         )
+        # create button to delete if needed
+        tk.Button(
+            calorie_table_frame,
+            text="X",
+            command=lambda: delete_food_from_database(entry, day_window, selected_date),
+        ).grid(row=row_index, column=4)
 
 
 # This function opens the final individual day window
