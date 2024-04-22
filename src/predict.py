@@ -1,4 +1,5 @@
 from ultralytics import YOLO
+from calorie_estim import calorieEstimator
 import os
 import cv2
 
