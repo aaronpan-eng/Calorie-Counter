@@ -1,7 +1,7 @@
 
-path: C:/Users/aaron/Documents/Coding/Calorie-Counter  # dataset root dir
-train: data/images  # train images (relative to 'path')
-val: data/images  # val images (relative to 'path')
+path: C:/Users/aaron/Documents/Coding/Calorie-Counter/data  # dataset root dir
+train: images/train  # train images (relative to 'path')
+val: images/valid  # val images (relative to 'path')
 
 # Classes
 names:
@@ -10,7 +10,7 @@ names:
   2: strawberry
   3: sphagetti
   4: pancake
-  5: credit_card
+  5: screen
   6: donut
   7: pho
   8: pizza
