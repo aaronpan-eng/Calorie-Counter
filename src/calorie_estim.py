@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import easyocr
 
 def calorieEstimator(image_path, model_path):
-    #initializing
+    # Initializing
     current_estim = 0.0
     calorie_estimates = [('banana', 0.89),
                          ('cheesecake', 3.21),
@@ -60,12 +60,12 @@ def crop_for_ocr(image_path, model_path):
 
     # Setting up the YOLO model from our training & setting threshold
     model = YOLO(model_path)
-    threshold = 0.5
+    threshold = 0.15
 
     # Prediction
     results = model(img)[0]
 
-    # Pre
+    # Inintializing
     cropped_img = img
     
     # Going through prediction results and finding which is above the threshold
