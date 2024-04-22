@@ -1,4 +1,4 @@
-# NAMES
+# Samuel Lee, Aaron Pan, Abhishek Uddaraju
 # CS 5330
 # Spring 2024
 # DESCRIPTION
