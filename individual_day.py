@@ -1,209 +1,35 @@
-# Samuel Lee, Aaron Pan, Abhishek Uddaraju
+# NAMES
 # CS 5330
 # Spring 2024
-# DESCRIPTION TODO: add description
+# DESCRIPTION
 
 # import statements
 import os
-import cv2
 import json
 import time
 import random
-from ultralytics import YOLO
 from shutil import copyfile
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
-import numpy as np
-import matplotlib.pyplot as plt
-import easyocr
 
 
 # This function determines if a food item is identifiable in the network or not
-def identified_food(image_path, model_path):
-    img = cv2.imread(image_path)
-
-    # Setting up the YOLO model from our training & setting threshold
-    model = YOLO(model_path)
-    threshold = 0.5
-
-    # Prediction
-    results = model(img)[0]
-    
-    # Going through prediction results and finding which is above the threshold
-    for result in results.boxes.data.tolist():
-        x1, y1, x2, y2, score, class_id = result
-        if results.names[int(class_id)] != 'screen':
-            return True
-        elif results.names[int(class_id)] == None:
-            return False
-    return False
+def identified_food():
+    return True
 
 
 # This function determines if the weight of the food is found in the image
-def identified_weight(image_path, model_path):
-    img = cv2.imread(image_path)
+def identified_weight():
+    return True
 
-    # Setting up the YOLO model from our training & setting threshold
-    model = YOLO(model_path)
-    threshold = 0.5
-
-    # Prediction
-    results = model(img)[0]
-    
-    # Going through prediction results and finding which is above the threshold
-    for result in results.boxes.data.tolist():
-        x1, y1, x2, y2, score, class_id = result
-        if results.names[int(class_id)] == 'screen':
-            return True
-    
-    return False
-
-# This function determines calorie of food
-def calorieEstimator(image_path, model_path):
-    # Initializing calorie estimate for current food and calorie per gram for each food
-    current_estim = 0.0
-    calorie_estimates = [('banana', 0.89),
-                         ('cheesecake', 3.21),
-                         ('strawberry', 0.36),
-                         ('pancake', 2.27),
-                         ('donut', 4.26),
-                         ('pho', 0.89),
-                         ('pizza', 2.82),
-                         ('scallop', 1.11),
-                         ('taco', 2.52)]
-
-    # Reading image
-    img = cv2.imread(image_path)
-
-    # Setting up the YOLO model from our training & setting threshold
-    model = YOLO(model_path)
-    threshold = 0.5
-
-    # Prediction
-    results = model(img)[0]
-    
-    # Setting prediction result name for later use
-    initial_result_name = ''
-    
-    # Going through prediction results and finding which is above the threshold
-    for result in results.boxes.data.tolist():
-        x1, y1, x2, y2, score, class_id = result
-        counter = 0
-        if results.names[int(class_id)] != 'credit_card':
-            if (counter == 0):
-                initial_result_name = results.names[int(class_id)]
-                # print(initial_result_name)
-                # TODO: can also store the detected foods in a list and have the user choose between the unique items in the list if the first detected food isnt right
-                # alternatively could use non-maxima suppression to only return the food with the most occurance and highest probability
-
-    # Feeding image into OCR to get weight on scale
-    weight = ocr_scale_weight(image_path)
-
-    # Multiplying weight of prediction by unit calorie count
-    for item in calorie_estimates:
-        if initial_result_name == item[0]:
-            current_estim = weight * item[1]
-            # print("Food: ", initial_result_name)
-            # print("Calories for ", weight, " grams of ", initial_result_name, " is: ", current_estim, " calories.")
-    
-    # Returning calorie estimate
-    return(initial_result_name, current_estim, weight)
-
-# This function performs non maxima suppresion around the box that bound the screen in case there are multiple that bound the screen at a time
-def non_max_supression(results):
-    boxes = []
-    scores = []
-
-    for result in results.boxes.data.tolist():
-        x1, y1, x2, y2, score, class_id = result
-        if results.names[int(class_id)] == 'screen':
-            boxes.append([x1,y1,x2,y2])
-            scores.append(score)
-
-    boxes = np.array(boxes)
-    scores = np.array(scores)
-
-    indices = cv2.dnn.NMSBoxes(boxes[:, :4], scores, score_threshold=0.1, nms_threshold=0.)
-    return boxes[indices]
-
-# This function crops the image to only the LCD screen to feed into OCR
-def crop_for_ocr(image_path, model_path):
-    # Reading image
-    img = cv2.imread(image_path)
-    # rows, cols, _ = img.shape
-
-    # print("Rows:", rows)
-    # print("Columns:", cols)
-
-    # Setting up the YOLO model from our training & setting threshold
-    model = YOLO(model_path)
-
-    # Prediction
-    results = model(img)[0]
-    
-    # Putting through non-maxima suppression function to find the best bounding box
-    box = non_max_supression(results)
-
-    # Cropping image
-    cropped_img = img[int(box[0,1]):int(box[0,3]), int(box[0,0]):int(box[0,2])]
-
-    return(cropped_img)
-# TODO: add error check for crop to make sure that it only stores the "screen" boxes into the array for non-maximum supression
-
-# This function extracts the weight from the scale in the image using OCR
-def ocr_scale_weight(image_path):
-    ocr_model_path = os.path.join('runs', 'detect', 'train8', 'weights', 'best.pt')
-
-    cropped_img = crop_for_ocr(image_path, ocr_model_path)
-
-    # instance text detector
-    reader = easyocr.Reader(['en'], gpu=False)
-    
-    # converting the image to grayscale
-    gray_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
-    # inverting the grayscale image
-    inverted_image = 255 - gray_image
-    # Apply threshold (pixel values less than 200 become zero)
-    threshold_value = 180
-    _, thresholded_image = cv2.threshold(inverted_image, threshold_value, 255, cv2.THRESH_BINARY)
-    # Inverting the tresholded image
-    inverted_image = 255 - thresholded_image
-    # converting thresholded image to 3-channel image
-    thresholded_3channel = cv2.merge([inverted_image] * 3)
-    # applying Gaussian blur
-    thresholded_3channel = cv2.GaussianBlur(thresholded_3channel, (5, 5), 0)  # Kernel size (5, 5) can be adjusted
-
-
-    # detect text on image
-    text_ = reader.readtext(thresholded_3channel)
-
-    threshold = 0.25
-    weight = 0
-    # draw bbox and text
-    for t_, t in enumerate(text_):
-        print(t)
-
-        bbox, text, score = t
-
-        if score > threshold:
-            cv2.rectangle(cropped_img, bbox[0], bbox[2], (0, 255, 255), 2)
-            cv2.putText(cropped_img, text, [bbox[0][0]+10,bbox[0][1]+20], cv2.FONT_HERSHEY_COMPLEX, 0.7, (0,255, 0), 2)
-            weight = int(text)
-            
-
-    print("weight: ", weight)
-    plt.imshow(cv2.cvtColor(cropped_img, cv2.COLOR_BGR2RGB))
-    plt.show(block = False)
-
-    return(weight)
 
 # This function adds the food name, food image file name, weight, calories, and total calories to the database
 def add_food_to_database(
     window, name, file_path, weight, calories, current_date, day_window
 ):
     # get directory where imagesd will be stored for the current date
-    base_directory = os.path.join("..", "data", "saved_food_images", current_date.replace("/", "-"))
+    base_directory = os.path.join("saved_food_images", current_date.replace("/", "-"))
     os.makedirs(base_directory, exist_ok=True)
 
     # generate random file name to save to prevent duplicates
@@ -365,30 +191,19 @@ def add_food(current_date, day_window):
         tk.messagebox.showerror("No File Selected", "Please select a valid image file.")
         return
 
-    # model parameters for detecting food for calorie estimate and screen for weight estimate
-    current_directory = os.getcwd()
-    food_model_path = os.path.join(current_directory, 'runs', 'detect', 'train4', 'weights', 'best.pt')
-    scale_model_path = os.path.join(current_directory, 'runs', 'detect', 'train8', 'weights', 'best.pt')
-
     # TODO: GET ACTUAL VALUES FROM OTHER PARTS
     # if valid file, check if identifiable food
-    if identified_food(file_path, food_model_path):
-        
+    if identified_food():
         # check if weight is found
-        if identified_weight(file_path, scale_model_path):
-            food, calories, weight = calorieEstimator(file_path, food_model_path)
-            print("food: ", food)
-            print("calories: ", calories)
-            print("weight", weight)
-
+        if identified_weight():
             # open new window
             food_add_window = create_food_add_window()
             customize_food_add_window(
                 food_add_window,
-                food,
+                "banana",
                 file_path,
-                weight,
-                calories,
+                "100g",
+                155,
                 current_date,
                 day_window,
             )

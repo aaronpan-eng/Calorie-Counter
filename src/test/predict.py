@@ -3,9 +3,9 @@ from calorie_estim import calorieEstimator
 import os
 import cv2
 
-model_path = os.path.join('runs', 'detect', 'train8', 'weights', 'last.pt')
+model_path = os.path.join('..', 'runs', 'detect', 'train8', 'weights', 'best.pt')
 model = YOLO(model_path)
-threshold = 0.1
+threshold = 0
 
 video_capture = cv2.VideoCapture(1)
 
@@ -23,7 +23,7 @@ while True:
     
     for result in results.boxes.data.tolist():
         x1, y1, x2, y2, score, class_id = result
-        print(results.names[int(class_id)])
+        # print(results.names[int(class_id)])
 
         if score > threshold:
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 4)
