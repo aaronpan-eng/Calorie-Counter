@@ -55,7 +55,7 @@ def calorieEstimator(image_path, model_path):
     return(initial_result_name, current_estim)
 
 def crop_for_ocr(image_path, model_path):
-     # Reading image
+    # Reading image
     img = cv2.imread(image_path)
 
     # Setting up the YOLO model from our training & setting threshold

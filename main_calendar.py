@@ -1,7 +1,7 @@
-# Samuel Lee, Aaron Pan, Abhishek Uddaraju
+# NAMES
 # CS 5330
 # Spring 2024
-# DESCRIPTION TODO: add description
+# DESCRIPTION
 
 # import statements
 import sys
