@@ -4,6 +4,7 @@ This project provides an interface to track food and calories per day with a sca
 #### Team Members
 - Aaron Pan
 - Abhishek Uddaraju
+- Samuel Lee
 
 ## Installation/Instructions 
 
