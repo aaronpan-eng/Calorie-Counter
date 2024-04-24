@@ -1,9 +1,15 @@
+# Samuel Lee, Aaron Pan, Abhishek Uddaraju
+# CS 5330
+# Spring 2024
+# Sandbox for testing calorie estimation code
+
 from ultralytics import YOLO
 import os
 import cv2
 import matplotlib.pyplot as plt
 import easyocr
 
+# Estimating calorie function
 def calorieEstimator(image_path, model_path):
     # Initializing
     current_estim = 0.0

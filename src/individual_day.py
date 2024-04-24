@@ -1,7 +1,7 @@
 # Samuel Lee, Aaron Pan, Abhishek Uddaraju
 # CS 5330
 # Spring 2024
-# DESCRIPTION TODO: add description
+# Script that controls commands and processing for each individual day
 
 # import statements
 import os
@@ -87,16 +87,18 @@ def calorieEstimator(image_path, model_path):
     # Setting prediction result name for later use
     initial_result_name = ''
     
+    labels = []
+    scores = []
+
     # Going through prediction results and finding which is above the threshold
     for result in results.boxes.data.tolist():
         x1, y1, x2, y2, score, class_id = result
-        counter = 0
         if results.names[int(class_id)] != 'credit_card':
-            if (counter == 0):
-                initial_result_name = results.names[int(class_id)]
-                # print(initial_result_name)
-                # TODO: can also store the detected foods in a list and have the user choose between the unique items in the list if the first detected food isnt right
-                # alternatively could use non-maxima suppression to only return the food with the most occurance and highest probability
+            labels.append(results.names[int(class_id)])
+            scores.append(score)
+
+    max_index = scores.index(max(scores))
+    initial_result_name = labels[max_index]
 
     # Feeding image into OCR to get weight on scale
     weight = ocr_scale_weight(image_path)
@@ -105,8 +107,6 @@ def calorieEstimator(image_path, model_path):
     for item in calorie_estimates:
         if initial_result_name == item[0]:
             current_estim = weight * item[1]
-            # print("Food: ", initial_result_name)
-            # print("Calories for ", weight, " grams of ", initial_result_name, " is: ", current_estim, " calories.")
     
     # Returning calorie estimate
     return(initial_result_name, current_estim, weight)
@@ -132,10 +132,6 @@ def non_max_supression(results):
 def crop_for_ocr(image_path, model_path):
     # Reading image
     img = cv2.imread(image_path)
-    # rows, cols, _ = img.shape
-
-    # print("Rows:", rows)
-    # print("Columns:", cols)
 
     # Setting up the YOLO model from our training & setting threshold
     model = YOLO(model_path)
@@ -197,10 +193,9 @@ def ocr_scale_weight(image_path):
         if score > threshold:
             cv2.rectangle(thresholded_3channel, bbox[0], bbox[2], (0, 255, 255), 2)
             cv2.putText(thresholded_3channel, text, [bbox[0][0]+10,bbox[0][1]+20], cv2.FONT_HERSHEY_COMPLEX, 0.7, (0,255, 0), 2)
-            # weight = int(text)
+            weight = int(text)
             
 
-    # print("weight: ", weight)
     plt.imshow(cv2.cvtColor(thresholded_3channel, cv2.COLOR_BGR2RGB))
     plt.show(block = False)
 
@@ -375,7 +370,7 @@ def add_food(current_date, day_window):
 
     # model parameters for detecting food for calorie estimate and screen for weight estimate
     current_directory = os.getcwd()
-    food_model_path = os.path.join(current_directory, 'runs', 'detect', 'train4', 'weights', 'best.pt')
+    food_model_path = os.path.join(current_directory, 'runs', 'detect', 'food_detect', 'best.pt')
     scale_model_path = os.path.join(current_directory, 'runs', 'detect', 'screen_detect', 'best.pt')
 
     # TODO: GET ACTUAL VALUES FROM OTHER PARTS
