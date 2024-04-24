@@ -27,5 +27,7 @@ Visual Studio Code is a lightweight but powerful source code editor that runs on
 ### 3. Command line arguments required to run the Executable
 ```
 $ cd /<project_location>/src
+```
+Run main_calendar.py from src folder for the app to work properly with other files
 
-Run main_calendar.py from src folder for it to work properly with other files
+Note: when running .py files, run them from the directory in which they are contained to make sure file paths work together
