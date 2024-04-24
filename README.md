@@ -1,15 +1,14 @@
 # Calorie-Counter
-#### Description
+### Description
 This project provides an interface to track food and calories per day with a scale supplied by the user. Foods included in our database include: Cheesecake, tacos, scallops, pizza, pho, donuts, pancake, spaghetti, strawberry, and bananas. It uses YOLOv8 for object detection, which is trained on our custom dataset of 30 images per class. To track the calories, it reads the weight in grams from the LCD scale with OCR and multiplies it by grams per calorie of each food.
 
-#### Example Images of the 10 Categories
-![Screenshot 2024-04-23 192154](https://github.com/aaronpan-eng/Calorie-Counter/assets/91743944/7652ddce-0ed4-4733-9be6-4e45facfe54e)
-
-
-#### Team Members
+### Team Members
 - Aaron Pan
 - Abhishek Uddaraju
 - Samuel Lee
+
+### Example Images of the 10 Categories
+![Screenshot 2024-04-23 192154](https://github.com/aaronpan-eng/Calorie-Counter/assets/91743944/7652ddce-0ed4-4733-9be6-4e45facfe54e)
 
 ## Installation/Instructions 
 
