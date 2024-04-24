@@ -72,7 +72,7 @@ def calorieEstimator(image_path, model_path):
                          ('pizza', 2.82),
                          ('scallop', 1.11),
                          ('taco', 2.52),
-                         ('sphagetti', 1.54)]
+                         ('spaghetti', 1.54)]
 
     # Reading image
     img = cv2.imread(image_path)
@@ -154,9 +154,16 @@ def crop_for_ocr(image_path, model_path):
 
 # This function extracts the weight from the scale in the image using OCR
 def ocr_scale_weight(image_path):
-    ocr_model_path = os.path.join('runs', 'detect', 'train8', 'weights', 'best.pt')
+    ocr_model_path = os.path.join('runs', 'detect', 'screen_detect', 'best.pt')
 
     cropped_img = crop_for_ocr(image_path, ocr_model_path)
+ 
+    cropped_img = cv2.GaussianBlur(cropped_img, (19, 19), 0)
+    
+    height, width = cropped_img.shape[:2]
+    cropped_img = cv2.resize(cropped_img, (int(width/3), int(height/3)))
+    
+    height, width = cropped_img.shape[:2]
 
     # instance text detector
     reader = easyocr.Reader(['en'], gpu=False)
@@ -173,13 +180,13 @@ def ocr_scale_weight(image_path):
     # converting thresholded image to 3-channel image
     thresholded_3channel = cv2.merge([inverted_image] * 3)
     # applying Gaussian blur
-    thresholded_3channel = cv2.GaussianBlur(thresholded_3channel, (5, 5), 0)  # Kernel size (5, 5) can be adjusted
+    thresholded_3channel = cv2.GaussianBlur(thresholded_3channel, (9, 9), 0)  # Kernel size can be adjusted
 
 
     # detect text on image
     text_ = reader.readtext(thresholded_3channel)
 
-    threshold = 0.25
+    threshold = 0.1
     weight = 0
     # draw bbox and text
     for t_, t in enumerate(text_):
@@ -188,13 +195,13 @@ def ocr_scale_weight(image_path):
         bbox, text, score = t
 
         if score > threshold:
-            cv2.rectangle(cropped_img, bbox[0], bbox[2], (0, 255, 255), 2)
-            cv2.putText(cropped_img, text, [bbox[0][0]+10,bbox[0][1]+20], cv2.FONT_HERSHEY_COMPLEX, 0.7, (0,255, 0), 2)
-            weight = int(text)
+            cv2.rectangle(thresholded_3channel, bbox[0], bbox[2], (0, 255, 255), 2)
+            cv2.putText(thresholded_3channel, text, [bbox[0][0]+10,bbox[0][1]+20], cv2.FONT_HERSHEY_COMPLEX, 0.7, (0,255, 0), 2)
+            # weight = int(text)
             
 
-    print("weight: ", weight)
-    plt.imshow(cv2.cvtColor(cropped_img, cv2.COLOR_BGR2RGB))
+    # print("weight: ", weight)
+    plt.imshow(cv2.cvtColor(thresholded_3channel, cv2.COLOR_BGR2RGB))
     plt.show(block = False)
 
     return(weight)
@@ -369,7 +376,7 @@ def add_food(current_date, day_window):
     # model parameters for detecting food for calorie estimate and screen for weight estimate
     current_directory = os.getcwd()
     food_model_path = os.path.join(current_directory, 'runs', 'detect', 'train4', 'weights', 'best.pt')
-    scale_model_path = os.path.join(current_directory, 'runs', 'detect', 'train8', 'weights', 'best.pt')
+    scale_model_path = os.path.join(current_directory, 'runs', 'detect', 'screen_detect', 'best.pt')
 
     # TODO: GET ACTUAL VALUES FROM OTHER PARTS
     # if valid file, check if identifiable food
