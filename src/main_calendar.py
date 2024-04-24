@@ -1,7 +1,7 @@
 # Samuel Lee, Aaron Pan, Abhishek Uddaraju
 # CS 5330
 # Spring 2024
-# DESCRIPTION TODO: add description
+# Main calendar interface that allows user to click into each individual day
 
 # import statements
 import sys
