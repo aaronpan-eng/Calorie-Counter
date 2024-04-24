@@ -3,9 +3,9 @@ from calorie_estim import calorieEstimator
 import os
 import cv2
 
-model_path = os.path.join('..', 'runs', 'detect', 'train8', 'weights', 'best.pt')
+model_path = os.path.join('..', 'runs', 'detect', 'screen_detect', 'best.pt')
 model = YOLO(model_path)
-threshold = 0
+threshold = 0.5
 
 video_capture = cv2.VideoCapture(1)
 
