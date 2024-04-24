@@ -109,9 +109,10 @@ def calorieEstimator(image_path, model_path):
     for item in calorie_estimates:
         if initial_result_name == item[0]:
             current_estim = weight * item[1]
+
     
     # Returning calorie estimate
-    return(initial_result_name, current_estim, weight)
+    return(initial_result_name, round(current_estim,2) , weight)
 
 # This function performs non maxima suppresion around the box that bound the screen in case there are multiple that bound the screen at a time
 def non_max_supression(results):
