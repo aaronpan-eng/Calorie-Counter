@@ -87,6 +87,7 @@ def calorieEstimator(image_path, model_path):
     # Setting prediction result name for later use
     initial_result_name = ''
     
+    # List to keep track of labels and scores
     labels = []
     scores = []
 
@@ -97,6 +98,7 @@ def calorieEstimator(image_path, model_path):
             labels.append(results.names[int(class_id)])
             scores.append(score)
 
+    # Set result name to the label with highest score
     max_index = scores.index(max(scores))
     initial_result_name = labels[max_index]
 
@@ -146,7 +148,6 @@ def crop_for_ocr(image_path, model_path):
     cropped_img = img[int(box[0,1]):int(box[0,3]), int(box[0,0]):int(box[0,2])]
 
     return(cropped_img)
-# TODO: add error check for crop to make sure that it only stores the "screen" boxes into the array for non-maximum supression
 
 # This function extracts the weight from the scale in the image using OCR
 def ocr_scale_weight(image_path):
@@ -195,7 +196,7 @@ def ocr_scale_weight(image_path):
             cv2.putText(thresholded_3channel, text, [bbox[0][0]+10,bbox[0][1]+20], cv2.FONT_HERSHEY_COMPLEX, 0.7, (0,255, 0), 2)
             weight = int(text)
             
-
+    # show thresholded image
     plt.imshow(cv2.cvtColor(thresholded_3channel, cv2.COLOR_BGR2RGB))
     plt.show(block = False)
 
