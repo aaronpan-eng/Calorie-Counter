@@ -71,7 +71,8 @@ def calorieEstimator(image_path, model_path):
                          ('pho', 0.89),
                          ('pizza', 2.82),
                          ('scallop', 1.11),
-                         ('taco', 2.52)]
+                         ('taco', 2.52),
+                         ('sphagetti', 1.54)]
 
     # Reading image
     img = cv2.imread(image_path)
