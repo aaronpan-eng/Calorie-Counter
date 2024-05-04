@@ -9,6 +9,9 @@ This project provides an interface to track food and calories per day with a sca
 - Abhishek Uddaraju
 - Samuel Lee
 
+### Video demo
+[![Calorie Counter Demo](https://img.youtube.com/vi/Ai11VdWSU5A/0.jpg)](https://www.youtube.com/watch?v=Ai11VdWSU5A)
+
 ### Example Images of the 10 Categories
 ![Screenshot 2024-04-23 192154](https://github.com/aaronpan-eng/Calorie-Counter/assets/91743944/7652ddce-0ed4-4733-9be6-4e45facfe54e)
 
